@@ -92,6 +92,7 @@ const Signup = () => {
     if (data.otp) {
       setVerificationOtp(data.otp.toString());
       setButtonText("Resend OTP");
+      showSnackbar("OTP sent successfully", 3000, "success");
     } else {
       showSnackbar("Failed to send OTP. Please try again.", 3000, "error");
     }
@@ -106,7 +107,7 @@ const Signup = () => {
 
     showSnackbar("OTP Verified", 3000, "success");
     setIsVerified(true);
-    setButtonText("Sign Up");
+    setButtonText("Send request to admin");
   };
 
   const signUp = async () => {
@@ -124,8 +125,30 @@ const Signup = () => {
     }
 
     console.log(name, mail, password);
-    showSnackbar("Signed Up Successfully!", 3000, "success");
-    // Add further signup logic here
+    const response = await fetch(
+      API.DATA_URL + API.DATA_ENDPOINTS.sendUserRequest,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          email: mail,
+          password: password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    console.log(data, response.status);
+
+    //based on status code
+    if (response.status === 200) {
+      showSnackbar(data.message, 3000, "success");
+    } else {
+      showSnackbar(data.message, 3000, "error");
+    }
   };
 
   return (
@@ -174,10 +197,13 @@ const Signup = () => {
           InputProps={{
             startAdornment: <EmailIcon sx={{ padding: "0.1rem" }} />,
           }}
+          sx={{
+            textTransform: "lowercase",
+          }}
           type="email"
           variant="outlined"
           value={mail}
-          onChange={(e) => setMail(e.target.value)}
+          onChange={(e) => setMail(e.target.value.toLowerCase())}
           onBlur={() => setMailTouched(true)}
           autoComplete="off"
           error={mailTouched && !!validateMail()}

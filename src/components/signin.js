@@ -4,41 +4,64 @@ import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import PasswordIcon from "@mui/icons-material/Password";
+import { useSnackbar } from "./snackbar";
+import API from "../constants";
 
 const Signin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const showSnackbar = useSnackbar();
 
   const validateEmail = () => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email) ? "" : "Please enter a valid email address.";
-  };
-
-  const validatePassword = () => {
-    const errors = [];
-    if (password.length < 8) errors.push("At least 8 characters");
-    else if (!/[A-Z]/.test(password)) errors.push("At least one uppercase letter");
-    else if (!/\d/.test(password)) errors.push("At least one number");
-    else if (!/[a-z]/.test(password)) errors.push("At least one lowercase letter");
-    else if (!/[@$!%*?&]/.test(password))
-      errors.push("At least one special character");
-    return errors;
+    return emailPattern.test(email)
+      ? ""
+      : "Please enter a valid email address.";
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const emailValidationError = validateEmail();
-    const passwordValidationError = validatePassword();
 
     setEmailError(emailValidationError);
-    setPasswordError(passwordValidationError);
 
-    if (!emailValidationError && !passwordValidationError) {
+    if (!emailValidationError) {
       // Proceed with form submission (e.g., API call)
+      fetch(API.DATA_URL + API.DATA_ENDPOINTS.signin, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            response.json().then((data) => {
+              localStorage.setItem("token", data.token);
+              window.location.href = "/dashboard";
+            });
+          } else {
+            response.json().then((data) => {
+              showSnackbar(
+                data.message || "Something went wrong",
+                3000,
+                "error"
+              );
+            });
+          }
+        })
+        .catch((error) => {
+          showSnackbar("Something went wrong", 3000, "error");
+          console.error("Error:", error);
+        });
+
       console.log("Form submitted", { email, password });
     }
   };
@@ -66,7 +89,10 @@ const Signin = () => {
         alignContent={"center"}
         justifyContent="space-evenly"
       >
-        <PersonIcon sx={{ alignSelf: "center", fontSize: "7rem" }} color="primary" />
+        <PersonIcon
+          sx={{ alignSelf: "center", fontSize: "7rem" }}
+          color="primary"
+        />
         <Typography variant="h4" color="primary" textAlign={"center"}>
           SignIn
         </Typography>
@@ -75,6 +101,9 @@ const Signin = () => {
           label="Email"
           type="email"
           variant="outlined"
+          InputProps={{
+            startAdornment: <EmailIcon sx={{ padding: "0.1rem" }} />,
+          }}
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -87,6 +116,9 @@ const Signin = () => {
           label="Password"
           type="password"
           variant="outlined"
+          InputProps={{
+            startAdornment: <PasswordIcon sx={{ padding: "0.1rem" }} />,
+          }}
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
