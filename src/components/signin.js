@@ -25,6 +25,11 @@ const Signin = () => {
       : "Please enter a valid email address.";
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -44,6 +49,9 @@ const Signin = () => {
         .then((response) => {
           if (response.ok) {
             response.json().then((data) => {
+              var user=data.user;
+              user.createdAt=formatDate(user.createdAt);
+              localStorage.setItem("user", JSON.stringify(user));
               localStorage.setItem("token", data.token);
               window.location.href = "/dashboard";
             });

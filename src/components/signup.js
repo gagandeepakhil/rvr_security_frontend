@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Typography } from "@mui/material";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
@@ -29,6 +29,25 @@ const Signup = () => {
   const [otpTouched, setOtpTouched] = useState(false);
 
   const showSnackbar = useSnackbar();
+
+  //implement timer for resend otp
+  const [timer, setTimer] = useState(0); // Timer state
+  const [isResendDisabled, setIsResendDisabled] = useState(false); // Resend button state
+
+  // Countdown logic
+  useEffect(() => {
+    if (timer > 0) {
+      const timeoutId = setTimeout(() => setTimer(timer - 1), 1000);
+      return () => clearTimeout(timeoutId); // Cleanup on unmount
+    }
+  }, [timer]);
+
+  // Enable resend button when timer reaches 0
+  useEffect(() => {
+    if (timer === 0) {
+      setIsResendDisabled(false);
+    }
+  }, [timer]);
 
   // Error validation
   const validateName = () => (name.trim() ? "" : "Name is required.");
@@ -75,7 +94,7 @@ const Signup = () => {
       showSnackbar("Email is required to request OTP", 3000, "error");
       return;
     }
-
+    showSnackbar("Sending OTP", 3000, "warning");
     const response = await fetch(API.OTP_URL, {
       method: "POST",
       headers: {
@@ -93,6 +112,8 @@ const Signup = () => {
       setVerificationOtp(data.otp.toString());
       setButtonText("Resend OTP");
       showSnackbar("OTP sent successfully", 3000, "success");
+      setIsResendDisabled(true);
+      setTimer(60);
     } else {
       showSnackbar("Failed to send OTP. Please try again.", 3000, "error");
     }
@@ -110,6 +131,7 @@ const Signup = () => {
     setButtonText("Send request to admin");
   };
 
+
   const signUp = async () => {
     const nameValidationError = validateName();
     const mailValidationError = validateMail();
@@ -125,6 +147,7 @@ const Signup = () => {
     }
 
     console.log(name, mail, password);
+    showSnackbar("Sending request to admin", 3000, "warning");
     const response = await fetch(
       API.DATA_URL + API.DATA_ENDPOINTS.sendUserRequest,
       {
@@ -253,6 +276,15 @@ const Signup = () => {
             helperText={otpTouched ? validateOtp() : ""}
           />
         )}
+        {isResendDisabled && (
+          <Typography
+            variant="body2"
+            color="primary"
+            textAlign="center"
+          >
+            You can request OTP in {timer} seonds.
+          </Typography>
+        )}
 
         <Button
           variant="contained"
@@ -263,6 +295,7 @@ const Signup = () => {
             },
             textTransform: "none",
           }}
+          disabled={isResendDisabled && !isVerified}
           onClick={isVerified ? signUp : requestOTP}
         >
           <Typography>{buttonText}</Typography>

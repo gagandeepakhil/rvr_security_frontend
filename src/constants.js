@@ -5,8 +5,10 @@ const API={
     DATA_ENDPOINTS:{
         "signin":"/api/users/login",
         "sendUserRequest":"/api/user-requests/send-request",
-        "getAllRequests":"/api/user-requests/getAllRequests",
-        "updateRequestStatus":"/api/user-requests/updateRequestStatus",
+        "getAllRequests":"/api/user-requests/admin/requests",
+        "updateRequestStatus":"/api/user-requests/admin/update-status",
+        "getRoleById":"/api/roles/",
+        "editUserDetails":"/api/users/",
     }
 }
 
