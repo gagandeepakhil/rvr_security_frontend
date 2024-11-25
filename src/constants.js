@@ -9,6 +9,8 @@ const API={
         "updateRequestStatus":"/api/user-requests/admin/update-status",
         "getRoleById":"/api/roles/",
         "editUserDetails":"/api/users/",
+        "getAllUsers":"/api/users/userslist",
+        "getAllRoles":"/api/roles/roleslist"   
     }
 }
 

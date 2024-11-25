@@ -40,6 +40,7 @@ const AppLayout = () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       if(Object.keys(user).length === 0) window.location.href="/signin";
+      if(!user?.role) window.location.href="/signin";
       //send get request with roleId as query parameter
       const response = await fetch(
         API.DATA_URL + API.DATA_ENDPOINTS.getRoleById + user.role,

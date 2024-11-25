@@ -56,6 +56,8 @@ function Home({ role, editable }) {
           //replace _id in data.user with id
           data.user.id = data.user._id;
           delete data.user._id;
+          //createdAt date format
+          data.user.createdAt = new Date(data.user.createdAt).toLocaleString();
           //set user details in local storage
           localStorage.setItem("user", JSON.stringify(data.user));
           setUserDetails(data.user);
