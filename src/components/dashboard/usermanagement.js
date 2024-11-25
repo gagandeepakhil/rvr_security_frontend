@@ -5,112 +5,124 @@ import Stack from "@mui/material/Stack";
 import UserTable from "./usertable";
 
 const UserManagement = () => {
-  const [userData, setUserData] = React.useState([
-    {
-      id: "674361d1cff8fbf180a9ba63",
-      name: "Admin",
-      email: "admin@example.com",
-      roleName: "admin",
-      status: "Active",
-      createdAt: "2024-11-24T17:26:41.382Z",
-    },
-    {
-      id: "674362dfcff8fbf180a9ba82",
-      name: "Gagan",
-      email: "gagandeepdunna9@gmail.com",
-      roleName: "guest",
-      status: "Active",
-      createdAt: "2024-11-24T17:31:11.397Z",
-    },
-  ]);
-  const [rolesList, setRolesList] = React.useState(["admin", "guest"]);
+  const [usersData, setUsersData] = React.useState([]);
+  const [rolesList, setRolesList] = React.useState([]);
+  const [roleMap, setRoleMap] = React.useState({});
 
-  const editableFields = ["name", "email", "roleName", "status", "createdAt"];
+  const editableFields = ["name", "email", "roleName", "status"];
   const columns = [
     {
       columnName: "name",
       type: "text",
+      displayName: "Name",
     },
     {
       columnName: "email",
       type: "email",
+      displayName: "Email",
     },
     {
       columnName: "roleName",
       type: "select",
       options: rolesList,
+      displayName: "Role",
     },
     {
       columnName: "status",
       type: "select",
       options: ["Active", "Inactive"],
+      displayName: "Status",
     },
     {
       columnName: "createdAt",
       type: "date",
+      displayName: "Created At",
     },
   ];
-  //  const getAllUsers = async () => {
-  //     try {
-  //         const response = await fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.getAllUsers}`, {
-  //             method: "GET",
-  //             headers: {
-  //                 "Content-Type": "application/json",
-  //                 "x-auth-token": localStorage.getItem("token"),
-  //             },
-  //         });
-  //         const data = await response.json();
-  //         return data;
-  //     } catch (error) {
-  //         console.error(error);
-  //     }
-  // };
+  const getAllUsers = async () => {
+    try {
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.getAllUsers}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  // React.useEffect(() => {
-  //     getAllUsers().then((data) => {
-  //         // setUserData(data.users);
-  //         console.log(data);
+  const getAllRoles = async () => {
+    try {
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.getAllRoles}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  //     });
-  // }, []);
-
-  // const getAllRoles = async () => {
-  //     try {
-  //         const response = await fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.getAllRoles}`, {
-  //             method: "GET",
-  //             headers: {
-  //                 "Content-Type": "application/json",
-  //                 "x-auth-token": localStorage.getItem("token"),
-  //             },
-  //         });
-  //         const data = await response.json();
-  //         return data;
-  //     } catch (error) {
-  //         console.error(error);
-  //     }
-  // };
-
-  // React.useEffect(() => {
-  //     getAllRoles().then((data) => {
-  //         console.log(data);
-
-  //     });
-  // }, []);
+  React.useEffect(() => {
+    getAllUsers().then((data) => {
+      // setUserData(data.users);
+      //create users data
+      var usersData=[];
+      data.users.forEach((user) => {
+        usersData.push({
+          id:user._id,
+          name: user.name,
+          email: user.email,
+          roleName: user.roleId.roleName,
+          status: user.status,
+          createdAt: user.createdAt,
+        });
+      })
+      console.log(usersData,data);
+      
+      setUsersData(usersData);
+    });
+    getAllRoles().then((data) => {
+      console.log(data);
+      //map role Name to id
+      const roleMap = {};
+      data.roles.forEach((role) => {
+        roleMap[role.roleName] = role._id;
+      });
+      console.log(roleMap);
+      setRoleMap(roleMap);
+      setRolesList(data.roles.map((role) => role.roleName));
+    });
+  }, []);
 
   return (
     <Stack spacing={2} direction={"column"}>
-      <Typography variant="h5" align="center">
-        User Management
-      </Typography>
-      <UserTable
-        data={userData}
-        editableFields={columns.filter((col) =>
-          editableFields.includes(col.columnName)
-        )}
-        columns={columns.map((col) => col.columnName)}
+      {usersData.length > 0 && (
+        <UserTable
+        editableFields={editableFields}
+        columns={columns}
+        rolesList={rolesList}
+        data={usersData}
+        roleMap={roleMap}
       />
+      )}
     </Stack>
   );
+  
 };
 
 export default UserManagement;

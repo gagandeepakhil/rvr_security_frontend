@@ -10,7 +10,8 @@ const API={
         "getRoleById":"/api/roles/",
         "editUserDetails":"/api/users/",
         "getAllUsers":"/api/users/userslist",
-        "getAllRoles":"/api/roles/roleslist"   
+        "getAllRoles":"/api/roles/roleslist",
+        "deleteUser":"/api/users/"
     }
 }
 
