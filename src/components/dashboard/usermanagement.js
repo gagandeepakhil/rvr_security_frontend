@@ -9,8 +9,9 @@ const UserManagement = () => {
   const [usersData, setUsersData] = React.useState([]);
   const [rolesList, setRolesList] = React.useState([]);
   const [roleMap, setRoleMap] = React.useState({});
+  const [currentPermissions, setCurrentPermissions] = React.useState({});
 
-  const showSnackbar  = useSnackbar();
+  const showSnackbar = useSnackbar();
 
   const editableFields = ["name", "email", "roleName", "status"];
   const columns = [
@@ -80,63 +81,92 @@ const UserManagement = () => {
     }
   };
 
-  React.useEffect(() => {
+  const getCurrentPermissions = async () => {
+    const roleId = JSON.parse(localStorage.getItem("user")).roleId;
+    try {
+      fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.getRoleById}${roleId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+
+          setCurrentPermissions(data.role.permissions);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleRefrehsh = () => {
     getAllUsers().then((data) => {
-      if(data?.error){
+      if (data?.error) {
         showSnackbar(data?.error, 3000, "error");
         return;
       }
       // setUserData(data.users);
       //create users data
-      var usersData=[];
+      var usersData = [];
       data?.users?.forEach((user) => {
         usersData.push({
-          id:user._id,
+          id: user._id,
           name: user.name,
           email: user.email,
           roleName: user.roleId.roleName,
           status: user.status,
           createdAt: user.createdAt,
         });
-      })
-      console.log(usersData,data);
-      
+      });
+      console.log(usersData, data);
+
       setUsersData(usersData);
     });
-    getAllRoles().then((data) => {
-      console.log(data);
-      if(data?.error){
-        showSnackbar(data?.error, 3000, "error");
-        return;
-      }
-      //map role Name to id
-      const roleMap = {};
-      data?.roles?.forEach((role) => {
-        roleMap[role?.roleName] = role._id;
+    getAllRoles()
+      .then((data) => {
+        console.log(data);
+        if (data?.error) {
+          showSnackbar(data?.error, 3000, "error");
+          return;
+        }
+        //map role Name to id
+        const roleMap = {};
+        data?.roles?.forEach((role) => {
+          roleMap[role?.roleName] = role._id;
+        });
+        console.log(roleMap);
+        setRoleMap(roleMap);
+        setRolesList(data?.roles?.map((role) => role?.roleName));
+      })
+      .catch((error) => {
+        console.error(error);
+        showSnackbar(error?.message, 3000, "error");
       });
-      console.log(roleMap);
-      setRoleMap(roleMap);
-      setRolesList(data?.roles?.map((role) => role?.roleName));
-    }).catch((error) => {
-      console.error(error);
-      showSnackbar(error?.message, 3000, "error");
-    });
+    getCurrentPermissions();
+  };
+
+  React.useEffect(() => {
+    handleRefrehsh();
   }, []);
 
   return (
     <Stack spacing={2} direction={"column"}>
       {usersData.length > 0 && (
         <UserTable
-        editableFields={editableFields}
-        columns={columns}
-        rolesList={rolesList}
-        data={usersData}
-        roleMap={roleMap}
-      />
+          editableFields={editableFields}
+          columns={columns}
+          rolesList={rolesList}
+          data={usersData}
+          roleMap={roleMap}
+          currentPermissions={currentPermissions}
+          handleRefresh={handleRefrehsh}
+        />
       )}
     </Stack>
   );
-  
 };
 
 export default UserManagement;

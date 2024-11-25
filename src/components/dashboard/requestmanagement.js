@@ -172,7 +172,7 @@ const UserRequests = () => {
   return (
     <Box sx={{ padding: 3 }}>
       {/* Tabs for navigation with color coding */}
-      <Box sx={{ display: "flex", alignItems: "center", marginBottom: 3 }}>
+      <Box component={Paper} sx={{ display: "flex", alignItems: "center", marginBottom: 3 }}>
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}

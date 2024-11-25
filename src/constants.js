@@ -12,7 +12,10 @@ const API={
         "getAllUsers":"/api/users/userslist",
         "getAllRoles":"/api/roles/roleslist",
         "deleteUser":"/api/users/",
-        "addUser":"/api/users/add"
+        "addUser":"/api/users/add",
+        "addRole":"/api/roles/define",
+        "deleteRole":"/api/roles/",
+        "editRole":"/api/roles/"
     }
 }
 

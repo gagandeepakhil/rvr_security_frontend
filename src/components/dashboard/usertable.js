@@ -16,6 +16,8 @@ import {
   InputAdornment,
   Typography,
   Button,
+  Container,
+  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAdd from "@mui/icons-material/PersonAdd";
@@ -27,8 +29,18 @@ import SearchIcon from "@mui/icons-material/Search";
 import API from "../../constants";
 import { useSnackbar } from "../snackbar";
 import { usePopper } from "../poppercontext";
+import InfoIcon from "@mui/icons-material/Info";
+import LoopIcon from "@mui/icons-material/Loop";
 
-const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
+const UserTable = ({
+  data,
+  editableFields,
+  columns,
+  rolesList,
+  roleMap,
+  currentPermissions,
+  handleRefresh,
+}) => {
   const [users, setUsers] = useState(data);
   const [editingRowId, setEditingRowId] = useState(null);
   const [editValues, setEditValues] = useState({});
@@ -277,14 +289,21 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
   };
 
   return (
-    <Paper>
-      <Toolbar>
-        <Typography variant="h6" sx={{ flex: "1 1 auto" }}>
+    <Container>
+      <Paper sx={{ p: 2, mb: 2, alignContent: "center" }}>
+        {/* <Toolbar> */}
+        <Typography variant="h5" margin={2}>
           User Management
         </Typography>
-        <Stack direction="row" spacing={2}>
-          <Button variant="contained" color="primary" onClick={handleAddUser}>
-            <PersonAdd />
+        <Stack direction="row" alignItems={"center"} spacing={2}>
+          {/* //check if 'create' attribute is true in currentPermissions */}
+          {currentPermissions?.create && (
+            <Button variant="outlined" color="primary" onClick={handleAddUser}>
+              <PersonAdd />
+            </Button>
+          )}
+          <Button variant="outlined" color="primary" onClick={handleRefresh}>
+            <LoopIcon />
           </Button>
           <TextField
             variant="outlined"
@@ -313,9 +332,13 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
               </MenuItem>
             ))}
           </Select>
+          <Tooltip title={`Default password is mail id trimmed before '@'. For example, If email is  'user123@example.com'  then default password is  'user123'. `} >
+            <InfoIcon  color="primary"/>
+          </Tooltip>
         </Stack>
-      </Toolbar>
-      <TableContainer>
+        {/* </Toolbar> */}
+      </Paper>
+      <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow
@@ -374,7 +397,14 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
               </TableRow>
             )}
             {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow
+                key={user.id}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  },
+                }}
+              >
                 {columns.map(({ columnName, type, options }) => (
                   <TableCell key={columnName}>
                     {editingRowId === user.id &&
@@ -406,12 +436,16 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
                     </>
                   ) : (
                     <>
-                      <IconButton onClick={() => handleEditClick(user.id)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleDeleteClick(user.id)}>
-                        <DeleteIcon />
-                      </IconButton>
+                      {currentPermissions?.edit && (
+                        <IconButton onClick={() => handleEditClick(user.id)}>
+                          <EditIcon />
+                        </IconButton>
+                      )}
+                      {currentPermissions?.delete && (
+                        <IconButton onClick={() => handleDeleteClick(user.id)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
                     </>
                   )}
                 </TableCell>
@@ -420,7 +454,7 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
           </TableBody>
         </Table>
       </TableContainer>
-    </Paper>
+    </Container>
   );
 };
 

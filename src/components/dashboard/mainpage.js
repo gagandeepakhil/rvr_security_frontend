@@ -90,7 +90,7 @@ const AppLayout = () => {
         });
       }
 
-      if (permissions?.view_all_users || permissions?.manage_users) {
+      if (permissions?.view_all_users ) {
         updatedMenuItems.push({
           label: "User Management",
           icon: <GroupIcon />,
