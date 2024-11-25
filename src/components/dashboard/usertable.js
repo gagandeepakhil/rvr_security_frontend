@@ -15,11 +15,14 @@ import {
   Toolbar,
   InputAdornment,
   Typography,
+  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import PersonAdd from "@mui/icons-material/PersonAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import Stack from "@mui/material/Stack";
 import SearchIcon from "@mui/icons-material/Search";
 import API from "../../constants";
 import { useSnackbar } from "../snackbar";
@@ -32,11 +35,102 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
   const [filterRole, setFilterRole] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const showSnackbar  = useSnackbar();
+  const showSnackbar = useSnackbar();
   const { confirm } = usePopper();
   useEffect(() => {
     console.log(users);
   }, [users]);
+  const [isAddingUser, setIsAddingUser] = React.useState(false);
+
+  const handleAddUser = () => {
+    setIsAddingUser(true);
+    // setNewUser({}); // Initialize a blank user object
+    setEditValues({});
+  };
+
+  const handleSaveNewUser = () => {
+    // Add the new user to the list
+    // setUsers([...users, { id: generateUniqueId(), ...newUser }]);
+
+    const validationEmail = validateEmail(editValues.email);
+    if (validationEmail) {
+      showSnackbar(validationEmail, 3000, "error");
+      return;
+    }
+
+    //make sure no fields are empty
+    if (
+      !editValues.name ||
+      !editValues.email ||
+      !editValues.roleName ||
+      !editValues.status
+    ) {
+      showSnackbar("Please fill in all fields", 3000, "error");
+      return;
+    }
+
+    var body = {
+      name: editValues.name,
+      email: editValues.email,
+      roleId: roleMap[editValues.roleName],
+      status: editValues.status,
+      password: editValues.email.split("@")[0],
+    };
+    fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.addUser}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": localStorage.getItem("token"),
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => {
+        if (response.status != 201) {
+          response.json().then((data) => {
+            showSnackbar(data.message, 3000, "error");
+          });
+        } else {
+          response.json().then((data) => {
+            console.log(data);
+
+            var roleName = "";
+            //find role name based on value of rolemanp
+            Object.values(roleMap).forEach((value, index) => {
+              if (value === data.user.roleId) {
+                roleName = Object.keys(roleMap)[index];
+              }
+            });
+
+            var newUser = {
+              id: data.user._id,
+              name: data.user.name,
+              email: data.user.email,
+              //find role name from role id
+              roleName: roleName,
+              status: data.user.status,
+              createdAt: data.user.createdAt,
+            };
+            console.log(newUser);
+            setUsers([...users, newUser]);
+
+            showSnackbar(data.message, 3000, "success");
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+
+        showSnackbar("Something went wrong", 3000, "error");
+      });
+    setIsAddingUser(false);
+    setEditValues({});
+  };
+
+  const handleCancelNewUser = () => {
+    setIsAddingUser(false);
+    setEditValues({});
+  };
+
   const handleEditClick = (id) => {
     setEditingRowId(id);
     const userToEdit = users.find((user) => user.id === id);
@@ -70,27 +164,25 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
         },
         body: JSON.stringify(body),
       }
-    )
-      .then((response) => {  
-        if(response.status!=200){
-          showSnackbar("Something went wrong", 3000, "error");
-          return;
-        }else{
-          setUsers((prevUsers) =>
-            prevUsers.map((user) =>
-              user.id === editingRowId ? { ...user, ...editValues } : user
-            )
-          );
-          showSnackbar("User details updated successfully", 3000, "success");
-        }
-      });
+    ).then((response) => {
+      if (response.status != 200) {
+        showSnackbar("Something went wrong", 3000, "error");
+        return;
+      } else {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === editingRowId ? { ...user, ...editValues } : user
+          )
+        );
+        showSnackbar("User details updated successfully", 3000, "success");
+      }
+    });
     setEditingRowId(null);
     setEditValues({});
   };
 
-  const handleDeleteClick = async(id) => {
-
-    const result=await confirm("Are you sure you want to delete this user?");
+  const handleDeleteClick = async (id) => {
+    const result = await confirm("Are you sure you want to delete this user?");
     if (!result) return;
     fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.deleteUser}${id}/delete`, {
       method: "DELETE",
@@ -101,10 +193,11 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
     }).then((response) => {
       if (response.status != 200) {
         showSnackbar("Something went wrong", 3000, "error");
-      }else{
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+      } else {
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
 
-        showSnackbar("User deleted successfully", 3000, "success");}
+        showSnackbar("User deleted successfully", 3000, "success");
+      }
     });
   };
 
@@ -118,7 +211,7 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
   const validateEmail = (email) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailPattern.test(email) ? "" : "Please enter a valid email.";
-  }
+  };
   const renderEditableField = (field, value) => {
     const { columnName, type, options } = field;
 
@@ -128,7 +221,7 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
           <TextField
             value={value || ""}
             onChange={(e) => handleChange(columnName, e.target.value)}
-            fullWidth
+            size="small"
           />
         );
       case "select":
@@ -136,7 +229,7 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
           <Select
             value={value || ""}
             onChange={(e) => handleChange(columnName, e.target.value)}
-            fullWidth
+            size="small"
           >
             {options?.map((option) => (
               <MenuItem key={option} value={option}>
@@ -150,10 +243,10 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
           <TextField
             value={value || ""}
             onChange={(e) => handleChange(columnName, e.target.value)}
-            fullWidth
+            size="small"
           />
         );
-        default:
+      default:
         return value; // Default to plain text for unsupported types
     }
   };
@@ -189,39 +282,58 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
         <Typography variant="h6" sx={{ flex: "1 1 auto" }}>
           User Management
         </Typography>
-        <TextField
-          variant="outlined"
-          placeholder="Search by email"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          size="small"
-          sx={{ marginRight: 2 }}
-        />
-        <Select
-          value={filterRole}
-          onChange={(e) => setFilterRole(e.target.value)}
-          displayEmpty
-          size="small"
-        >
-          <MenuItem value="">All Roles</MenuItem>
-          {rolesList.map((role) => (
-            <MenuItem key={role} value={role}>
-              {role}
-            </MenuItem>
-          ))}
-        </Select>
+        <Stack direction="row" spacing={2}>
+          <Button variant="contained" color="primary" onClick={handleAddUser}>
+            <PersonAdd />
+          </Button>
+          <TextField
+            variant="outlined"
+            placeholder="Search by email"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+          />
+          <Select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            displayEmpty
+            size="small"
+          >
+            <MenuItem value="">All Roles</MenuItem>
+            {rolesList.map((role) => (
+              <MenuItem key={role} value={role}>
+                {role}
+              </MenuItem>
+            ))}
+          </Select>
+        </Stack>
       </Toolbar>
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow
+              sx={{
+                "& th": {
+                  fontWeight: "bold",
+                },
+                "& th:hover": {
+                  cursor: "pointer",
+                },
+                "& th.Mui-active": {
+                  color: "primary.main",
+                },
+                "& th.Mui-active:hover": {
+                  color: "primary.main",
+                },
+              }}
+            >
               {columns.map(({ columnName, displayName }) => (
                 <TableCell key={columnName}>
                   <TableSortLabel
@@ -241,6 +353,26 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {isAddingUser && (
+              <TableRow>
+                {columns.map(({ columnName, type, options }) => (
+                  <TableCell key={columnName}>
+                    {renderEditableField(
+                      { columnName, type, options },
+                      editValues[columnName] || ""
+                    )}
+                  </TableCell>
+                ))}
+                <TableCell>
+                  <IconButton onClick={handleSaveNewUser}>
+                    <SaveIcon />
+                  </IconButton>
+                  <IconButton onClick={handleCancelNewUser}>
+                    <CancelIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            )}
             {filteredUsers.map((user) => (
               <TableRow key={user.id}>
                 {columns.map(({ columnName, type, options }) => (
@@ -258,7 +390,11 @@ const UserTable = ({ data, editableFields, columns, rolesList, roleMap }) => {
                       : user[columnName] || ""}
                   </TableCell>
                 ))}
-                <TableCell>
+                <TableCell
+                  sx={{
+                    minWidth: "80px",
+                  }}
+                >
                   {editingRowId === user.id ? (
                     <>
                       <IconButton onClick={handleSaveEdit}>

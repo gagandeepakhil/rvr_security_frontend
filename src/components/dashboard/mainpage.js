@@ -40,8 +40,8 @@ const AppLayout = () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       console.log(user);
-      
-      if(Object.keys(user).length === 0) window.location.href="/signin";
+
+      if (Object.keys(user).length === 0) window.location.href = "/signin";
       //send get request with roleId as query parameter
       const response = await fetch(
         API.DATA_URL + API.DATA_ENDPOINTS.getRoleById + user.roleId,
@@ -68,7 +68,7 @@ const AppLayout = () => {
     const fetchRole = async () => {
       const role = await getRoleById();
       console.log(role);
-      
+
       setRole(role?.role);
     };
     fetchRole();
@@ -77,10 +77,10 @@ const AppLayout = () => {
   //based on permission show dashboard
   useEffect(() => {
     const permissions = role?.permissions;
-  
+
     if (permissions && Object.keys(permissions).length > 0) {
       const updatedMenuItems = [];
-  
+
       // Conditionally add menu items based on permissions
       if (permissions?.view_personal_details) {
         updatedMenuItems.push({
@@ -89,7 +89,7 @@ const AppLayout = () => {
           component: <Home role={role} editable={permissions.edit} />,
         });
       }
-  
+
       if (permissions?.view_all_users || permissions?.manage_users) {
         updatedMenuItems.push({
           label: "User Management",
@@ -97,7 +97,7 @@ const AppLayout = () => {
           component: <UserManagement />,
         });
       }
-  
+
       if (permissions?.role_management) {
         updatedMenuItems.push({
           label: "Role Management",
@@ -105,7 +105,7 @@ const AppLayout = () => {
           component: <RoleManagement />,
         });
       }
-  
+
       if (permissions?.approve_user_creation) {
         updatedMenuItems.push({
           label: "User Requests",
@@ -113,12 +113,11 @@ const AppLayout = () => {
           component: <UserRequests />,
         });
       }
-  
+
       // Update the menu items based on the permissions
       setMenuItems(updatedMenuItems);
     }
   }, [role]);
-  
 
   return (
     <Box
@@ -134,12 +133,11 @@ const AppLayout = () => {
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Toolbar>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <IconButton
             color="inherit"
             edge="start"
             onClick={() => setIsExpanded(!isExpanded)}
-            sx={{ marginRight: 2 }}
           >
             <MenuIcon />
           </IconButton>
@@ -147,12 +145,7 @@ const AppLayout = () => {
             {role?.roleName?.charAt(0).toUpperCase() + role?.roleName?.slice(1)}{" "}
             Dashboard
           </Typography>
-          <IconButton
-            color="inherit"
-            edge="end"
-            onClick={() => handleLogout()}
-            sx={{ marginRight: 2 }}
-          >
+          <IconButton color="inherit" edge="end" onClick={() => handleLogout()}>
             <LogoutIcon />
           </IconButton>
         </Toolbar>

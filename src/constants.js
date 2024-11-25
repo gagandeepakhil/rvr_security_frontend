@@ -11,7 +11,8 @@ const API={
         "editUserDetails":"/api/users/",
         "getAllUsers":"/api/users/userslist",
         "getAllRoles":"/api/roles/roleslist",
-        "deleteUser":"/api/users/"
+        "deleteUser":"/api/users/",
+        "addUser":"/api/users/add"
     }
 }
 

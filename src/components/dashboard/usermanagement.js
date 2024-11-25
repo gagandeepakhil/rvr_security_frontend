@@ -3,11 +3,14 @@ import API from "../../constants";
 import { Typography } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import UserTable from "./usertable";
+import { useSnackbar } from "../snackbar";
 
 const UserManagement = () => {
   const [usersData, setUsersData] = React.useState([]);
   const [rolesList, setRolesList] = React.useState([]);
   const [roleMap, setRoleMap] = React.useState({});
+
+  const showSnackbar  = useSnackbar();
 
   const editableFields = ["name", "email", "roleName", "status"];
   const columns = [
@@ -79,10 +82,14 @@ const UserManagement = () => {
 
   React.useEffect(() => {
     getAllUsers().then((data) => {
+      if(data?.error){
+        showSnackbar(data?.error, 3000, "error");
+        return;
+      }
       // setUserData(data.users);
       //create users data
       var usersData=[];
-      data.users.forEach((user) => {
+      data?.users?.forEach((user) => {
         usersData.push({
           id:user._id,
           name: user.name,
@@ -98,14 +105,21 @@ const UserManagement = () => {
     });
     getAllRoles().then((data) => {
       console.log(data);
+      if(data?.error){
+        showSnackbar(data?.error, 3000, "error");
+        return;
+      }
       //map role Name to id
       const roleMap = {};
-      data.roles.forEach((role) => {
-        roleMap[role.roleName] = role._id;
+      data?.roles?.forEach((role) => {
+        roleMap[role?.roleName] = role._id;
       });
       console.log(roleMap);
       setRoleMap(roleMap);
-      setRolesList(data.roles.map((role) => role.roleName));
+      setRolesList(data?.roles?.map((role) => role?.roleName));
+    }).catch((error) => {
+      console.error(error);
+      showSnackbar(error?.message, 3000, "error");
     });
   }, []);
 
