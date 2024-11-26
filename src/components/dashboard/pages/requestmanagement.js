@@ -34,6 +34,7 @@ const UserRequests = () => {
 
   const getUserRequests = async () => {
     try {
+      showSnackbar("Fetching requests...", 3000, "info");
       const response = await fetch(
         `${API.DATA_URL}${API.DATA_ENDPOINTS.getAllRequests}`,
         {
@@ -70,6 +71,7 @@ const UserRequests = () => {
       }
 
       // Set requests in state
+      showSnackbar("Requests fetched successfully.", 3000, "success");
       setRequests(data.requests || []);
     } catch (error) {
       console.error("Error fetching requests:", error);

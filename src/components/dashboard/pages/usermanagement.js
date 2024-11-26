@@ -96,6 +96,7 @@ const UserManagement = () => {
           console.log(data);
 
           setCurrentPermissions(data.role.permissions);
+          showSnackbar("Data loaded", 3000, "success");
         });
     } catch (error) {
       console.error(error);
@@ -103,6 +104,7 @@ const UserManagement = () => {
   };
 
   const handleRefrehsh = () => {
+    showSnackbar("Loading data", 3000, "info");
     getAllUsers().then((data) => {
       if (data?.error) {
         showSnackbar(data?.error, 3000, "error");

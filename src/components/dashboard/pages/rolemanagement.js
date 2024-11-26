@@ -283,6 +283,7 @@ const RolePermissionManagement = () => {
   };
 
   const handleRefresh = () => {
+    showSnackbar("Loading data", 3000, "info");
     getAllRoles().then((data) => {
         var rolesList = [];
         data?.roles?.forEach((role) => {
@@ -293,6 +294,7 @@ const RolePermissionManagement = () => {
           });
         });
         setRoles(rolesList);
+        showSnackbar("Data loaded", 3000, "success");
       });
   }
   useEffect(() => {
