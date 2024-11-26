@@ -40,6 +40,7 @@ const Signin = () => {
     if (emailValidationError) return;
   
     try {
+      showSnackbar("Trying to sign in", 3000, "warning");
       // Show loading indicator or disable the submit button here (optional)
       const response = await fetch(API.DATA_URL + API.DATA_ENDPOINTS.signin, {
         method: "POST",
