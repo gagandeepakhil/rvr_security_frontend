@@ -3,21 +3,21 @@ import Signup from "./components/signup/signup";
 import Signin from "./components/signin/signin";
 import { SnackbarProvider } from "./components/snackbar";
 import MainPage from "./components/dashboard/mainpage";
-import { PopperProvider } from './components/poppercontext';
-import "./App.css"
+import { PopperProvider } from "./components/poppercontext";
+import "./App.css";
 
 function App() {
   return (
     <SnackbarProvider>
       <PopperProvider>
-      <Router>
-      <Routes>
-        <Route path="/" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/dashboard" element={<MainPage />} />
-      </Routes>
-    </Router> 
-    </PopperProvider>
+        <Router>
+          <Routes>
+            <Route path="/signin" element={<Signin />} />
+            <Route path="/dashboard" element={<MainPage />} />
+            <Route path="/" element={<Signup />} />
+          </Routes>
+        </Router>
+      </PopperProvider>
     </SnackbarProvider>
   );
 }
