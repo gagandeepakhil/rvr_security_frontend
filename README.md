@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+Role-Based Access Control (RBAC) System
+Overview
+This project is a Role-Based Access Control (RBAC) system designed with a user-friendly interface for managing users, roles, and permissions. The system supports role-based permissions, token-based authentication, search, filtering, and robust error handling for secure and efficient access control.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Features
+User Authentication
+Sign-in Page: Login using email and password.
+Sign-up Page:
+New users verify their email via OTP.
+After verification, users send an access request to the admin.
+Dashboard Sections
+Main Page: Overview and system summary.
+Request Management:
+Admin can view all user requests (pending, approved, declined).
+Admin can accept or reject access requests.
+Role Management:
+Default roles: Admin and Guest.
+Admin can create custom roles with specific permissions:
+Create, Edit, Delete.
+View All Users.
+View Personal Details.
+Approve User Creation.
+Manage Roles.
+If a role is deleted, all associated users are demoted to the Guest role.
+User Management:
+Admin can:
+Add users.
+Edit user details (name, email, role, and status).
+Inactive Users: Cannot log in.
+Default Admin Account: admin@example.com (cannot be deleted or modified).
+Search, Filter, and Sorting
+Search Users: Quickly locate users.
+Filter by Roles: Narrow down users by their assigned roles.
+Sorting: Organize user lists based on various criteria.
+Security Features
+Password Management:
+Default password for newly created users: Email prefix (trimmed before @).
+Users can update their passwords in their dashboard.
+Admin password: Adm!n$tr@t0r.
+Input Validation:
+Validates email and password formats for security.
+Token Expiration: Ensures secure session handling.
+Error Handling: Comprehensive error management ensures seamless operation and clear feedback.
+Tech Stack
+Frontend: React.js, MUI.
+Backend: Node.js (MVC Rest architecture).
+Database: MongoDB.
+Installation
+Prerequisites
+Node.js installed.
+MongoDB installed or accessible.
+Steps
+Clone the repository:
+bash
+Copy code
+git clone https://github.com/yourusername/rbac-system.git
+Navigate to the project directory:
+bash
+Copy code
+cd rbac-system
+Install dependencies:
+bash
+Copy code
+npm install
+Configure environment variables:
+Create a .env file in the root directory.
+Add the following:
+makefile
+Copy code
+MONGO_URI=<your-mongodb-connection-string>
+JWT_SECRET=<your-secret-key>
+OTP_EXPIRATION_TIME=10m
+TOKEN_EXPIRATION_TIME=1h
+Start the development server:
+bash
+Copy code
+npm run dev
+Usage
+Access the application at http://localhost:3000 (default).
+Sign up, verify your email, and send a request to the admin.
+Admin can manage users, roles, and requests via the dashboard.
+Contributions
+Feel free to contribute by submitting issues or pull requests. For major changes, please open a discussion to propose your ideas.
 
-## Available Scripts
+License
+This project is licensed under the MIT License.
 
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Acknowledgments
+Special thanks to the open-source community for providing tools and inspiration for this project.
