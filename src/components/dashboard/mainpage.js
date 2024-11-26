@@ -208,8 +208,6 @@ const AppLayout = () => {
         {/* Sidebar Drawer */}
         <Drawer
           variant={"temporary"}
-          onMouseEnter={() => setIsExpanded(true)}
-          onMouseLeave={() => setIsExpanded(false)}
           sx={{
             maxWidth: isExpanded ? 240 : 80,
             flexShrink: 0,

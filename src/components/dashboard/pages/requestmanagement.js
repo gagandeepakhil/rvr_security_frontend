@@ -235,12 +235,12 @@ const UserRequests = () => {
                 fontWeight: "bold",
               },
             },
-            minWidth: "98%",
-            overflowX: "scroll",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexWrap: "wrap",
+            // minWidth: "98%",
+            // overflowX: "scroll",
+            // display: "flex",
+            // alignItems: "center",
+            // justifyContent: "center",
+            // flexWrap: "wrap",
           }}
         >
           <Tab label="All Requests" />
