@@ -46,7 +46,7 @@ const AppLayout = () => {
         window.location.href = "/signin";
         return;
       }
-  
+
       // API request to get role by ID
       const response = await fetch(
         `${API.DATA_URL}${API.DATA_ENDPOINTS.getRoleById}${user.roleId}`,
@@ -58,10 +58,10 @@ const AppLayout = () => {
           },
         }
       );
-  
+
       if (!response.ok) {
         const error = await response.json();
-  
+
         if (error.error === "jwt expired") {
           // Handle token expiration
           showSnackbar("Session expired. Please log in again.", 3000, "error");
@@ -72,20 +72,23 @@ const AppLayout = () => {
           }, 3000);
           return;
         }
-  
+
         showSnackbar(error.message || "Failed to fetch role.", 3000, "error");
         throw new Error(error.message || "Failed to fetch role.");
       }
-  
+
       // Return role on success
       const role = await response.json();
       return role;
     } catch (error) {
       console.error("Error fetching role:", error);
-      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
+      showSnackbar(
+        "An unexpected error occurred. Please try again.",
+        3000,
+        "error"
+      );
     }
   };
-  
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -113,7 +116,7 @@ const AppLayout = () => {
         });
       }
 
-      if (permissions?.view_all_users ) {
+      if (permissions?.view_all_users) {
         updatedMenuItems.push({
           label: "User Management",
           icon: <GroupIcon />,
@@ -147,113 +150,132 @@ const AppLayout = () => {
       sx={{
         display: "flex",
         height: "100vh",
-        width: "100vw",
         justifyContent: "space-evenly",
+        margin:0,
+        padding:0,
+        width:"99%"
       }}
     >
-      {/* Top AppBar */}
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {role?.roleName?.charAt(0).toUpperCase() + role?.roleName?.slice(1)}{" "}
-            Dashboard
-          </Typography>
-          <IconButton color="inherit" edge="end" onClick={() => handleLogout()}>
-            <LogoutIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar Drawer */}
-      <Drawer
-        variant="permanent"
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
-        sx={{
-          width: isExpanded ? 240 : 60,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: isExpanded ? 240 : 60,
-            transition: "width 0.1s ease-in-out",
-            overflowX: "hidden",
-          },
-        }}
-      >
-        <Toolbar />
-        <List
-          sx={{
-            cursor: "pointer",
-          }}
-        >
-          {menuItems.map((item, index) => {
-            const isSelected = selectedComponent === item.label;
-            return (
-              <ListItem
-                button
-                key={index}
-                onClick={() => setSelectedComponent(item.label)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: isExpanded ? "flex-start" : "center",
-                  paddingY: "12px",
-                  transition: "padding 0.1s ease-in-out",
-                  backgroundColor: isSelected
-                    ? "rgba(0, 0, 255, 0.1)"
-                    : "transparent", // Change the background color for selected
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 255, 0.2)", // Hover effect
-                  },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: isExpanded ? "40px" : "0px",
-                    justifyContent: "center",
-                    transition: "min-width 0.1s ease-in-out",
-                    color: isSelected ? "blue" : "inherit", // Change icon color for selected
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                {isExpanded && (
-                  <ListItemText
-                    primary={item.label}
-                    sx={{
-                      opacity: isExpanded ? 1 : 0,
-                      transition: "opacity 0.1s ease-in-out",
-                      color: isSelected ? "blue" : "inherit", // Change text color for selected
-                      fontSize: "small",
-                    }}
-                  />
-                )}
-              </ListItem>
-            );
-          })}
-        </List>
-      </Drawer>
-
       {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          padding: 3,
-          //   marginLeft: isExpanded ? "240px" : "60px",
+          // marginLeft: isExpanded ? "240px" : "60px",
           transition: "margin-left 0.1s ease-in-out",
+          flexWrap: "wrap",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          maxWidth:"98vw",
+          padding:0,
+          margin:0
         }}
       >
-        <Toolbar />
+        {/* Top AppBar */}
+        <AppBar
+          sx={{
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            width: "100vw",
+            // position:"absolute",
+            position:"fixed",
+
+          }}
+        >
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              {role?.roleName?.charAt(0).toUpperCase() +
+                role?.roleName?.slice(1)}{" "}
+              Dashboard
+            </Typography>
+            <IconButton
+              color="inherit"
+              edge="end"
+              onClick={() => handleLogout()}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Sidebar Drawer */}
+        <Drawer
+          variant={"temporary"}
+          onMouseEnter={() => setIsExpanded(true)}
+          onMouseLeave={() => setIsExpanded(false)}
+          sx={{
+            maxWidth: isExpanded ? 240 : 80,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              maxWidth: isExpanded ? 240 : 80,
+              transition: "width 0.1s ease-in-out",
+              overflowX: "hidden",
+            },
+          }}
+          open={isExpanded}
+        >
+          <Toolbar />
+          <List
+            sx={{
+              cursor: "pointer",
+              padding: 0,
+              marginRight: 0,
+            }}
+          >
+            {menuItems.map((item, index) => {
+              const isSelected = selectedComponent === item.label;
+              return (
+                <ListItem
+                  button
+                  key={index}
+                  onClick={() => setSelectedComponent(item.label)}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: isExpanded ? "flex-start" : "center",
+                    paddingY: "12px",
+                    transition: "padding 0.1s ease-in-out",
+                    backgroundColor: isSelected
+                      ? "rgba(0, 0, 255, 0.1)"
+                      : "transparent", // Change the background color for selected
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 255, 0.2)", // Hover effect
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: isExpanded ? "40px" : "0px",
+                      justifyContent: "center",
+                      transition: "min-width 0.1s ease-in-out",
+                      color: isSelected ? "blue" : "inherit", // Change icon color for selected
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  {isExpanded && (
+                    <ListItemText
+                      primary={item.label}
+                      sx={{
+                        opacity: isExpanded ? 1 : 0,
+                        transition: "opacity 0.1s ease-in-out",
+                        color: isSelected ? "blue" : "inherit", // Change text color for selected
+                        fontSize: "small",
+                      }}
+                    />
+                  )}
+                </ListItem>
+              );
+            })}
+          </List>
+        </Drawer>
         {menuItems.find((item) => item.label === selectedComponent)?.component}
       </Box>
     </Box>

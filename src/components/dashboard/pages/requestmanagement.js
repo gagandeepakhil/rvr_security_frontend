@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Typography,
+  Container,
   Table,
   TableBody,
   TableCell,
@@ -12,6 +12,7 @@ import {
   Button,
   Tabs,
   Tab,
+  Toolbar,
 } from "@mui/material";
 import LoopIcon from "@mui/icons-material/Loop";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -43,9 +44,9 @@ const UserRequests = () => {
           },
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         if (data.error === "jwt expired") {
           // Handle session expiration
@@ -57,21 +58,28 @@ const UserRequests = () => {
           }, 3000);
           return;
         }
-  
+
         // Show error message for other cases
-        showSnackbar(data.message || "Failed to fetch requests.", 3000, "error");
+        showSnackbar(
+          data.message || "Failed to fetch requests.",
+          3000,
+          "error"
+        );
         console.error(data.message || "Error fetching requests.");
         return;
       }
-  
+
       // Set requests in state
       setRequests(data.requests || []);
     } catch (error) {
       console.error("Error fetching requests:", error);
-      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
+      showSnackbar(
+        "An unexpected error occurred. Please try again.",
+        3000,
+        "error"
+      );
     }
   };
-  
 
   useEffect(() => {
     getUserRequests();
@@ -132,7 +140,12 @@ const UserRequests = () => {
 
   const renderTable = (data) => (
     <TableContainer component={Paper}>
-      <Table>
+      <Table
+        sx={{
+          width: "100%",
+          overflowX: "scroll",
+        }}
+      >
         <TableHead>
           <TableRow>
             <TableCell>
@@ -190,9 +203,20 @@ const UserRequests = () => {
   );
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Container sx={{ padding: 0, minWidth: "96%", margin: 0 }}>
+      <Toolbar />
       {/* Tabs for navigation with color coding */}
-      <Box component={Paper} sx={{ display: "flex", alignItems: "center", marginBottom: 3 }}>
+      <Box
+        component={Paper}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          padding: 0,
+          margin: 0,
+          marginBottom: 3,
+          flexWrap: "wrap",
+        }}
+      >
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}
@@ -211,6 +235,12 @@ const UserRequests = () => {
                 fontWeight: "bold",
               },
             },
+            minWidth: "98%",
+            overflowX: "scroll",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexWrap: "wrap",
           }}
         >
           <Tab label="All Requests" />
@@ -224,7 +254,7 @@ const UserRequests = () => {
           variant="outlined"
           color="primary"
           onClick={getUserRequests}
-          sx={{ marginLeft: "auto" }}
+          sx={{ margin: "auto", alignSelf: "center" }}
           size="small"
         >
           <LoopIcon />
@@ -236,7 +266,7 @@ const UserRequests = () => {
       {activeTab === 1 && renderTable(filteredRequests.pending)}
       {activeTab === 2 && renderTable(filteredRequests.approved)}
       {activeTab === 3 && renderTable(filteredRequests.declined)}
-    </Box>
+    </Container>
   );
 };
 

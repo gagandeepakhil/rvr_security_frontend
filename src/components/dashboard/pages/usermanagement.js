@@ -153,8 +153,8 @@ const UserManagement = () => {
   }, []);
 
   return (
-    <Stack spacing={2} direction={"column"}>
-      {usersData.length > 0 && (
+    <>
+    {usersData.length > 0 ? (
         <UserTable
           editableFields={editableFields}
           columns={columns}
@@ -164,8 +164,8 @@ const UserManagement = () => {
           currentPermissions={currentPermissions}
           handleRefresh={handleRefrehsh}
         />
-      )}
-    </Stack>
+      ): <p>No users found</p>}</>
+      
   );
 };
 

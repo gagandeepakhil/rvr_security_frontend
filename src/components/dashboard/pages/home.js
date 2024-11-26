@@ -137,7 +137,7 @@ function Home({ role, editable }) {
   };
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box sx={{ padding: 2}}>
       <Typography variant="h4" textAlign="center" gutterBottom>
         Personal Details
       </Typography>

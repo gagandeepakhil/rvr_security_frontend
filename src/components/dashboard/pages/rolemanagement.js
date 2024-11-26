@@ -14,6 +14,7 @@ import {
   Tooltip,
   Paper,
   Checkbox,
+  Toolbar
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -300,6 +301,7 @@ const RolePermissionManagement = () => {
 
   return (
     <Container>
+      <Toolbar/>
       {/* Add New Role Section */}
       <Paper sx={{ p: 2, mb: 2, alignContent: "center" }}>
         <Typography variant="h5" gutterBottom>
@@ -347,7 +349,7 @@ const RolePermissionManagement = () => {
 
       {/* Roles Table */}
       <TableContainer component={Paper}>
-        <Table size="small" sx={{ borderCollapse: "collapse" }}>
+        <Table size="small" sx={{ borderCollapse: "collapse",minWidth:"98%",overflowX:"scroll" }}>
           <TableHead>
             <TableRow>
               <TableCell sx={{ padding: "4px 8px", fontWeight: "bold" }}>

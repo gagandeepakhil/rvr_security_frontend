@@ -10,8 +10,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import BadgeIcon from "@mui/icons-material/Badge";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
-import API from "../constants";
-import { useSnackbar } from "./snackbar";
+import API from "../../constants";
+import { useSnackbar } from "../snackbar";
 
 const Signup = () => {
   const [name, setName] = useState("");

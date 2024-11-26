@@ -32,6 +32,7 @@ import { usePopper } from "../../poppercontext";
 import InfoIcon from "@mui/icons-material/Info";
 import LoopIcon from "@mui/icons-material/Loop";
 
+
 const UserTable = ({
   data,
   editableFields,
@@ -292,13 +293,32 @@ const UserTable = ({
   };
 
   return (
-    <Container>
-      <Paper sx={{ p: 2, mb: 2, alignContent: "center" }}>
+    <Container
+      sx={{
+        minWidth:"96%",
+        padding:0,
+        margin:0
+      }}
+    >
+      <Toolbar/>
+      <Paper
+        sx={{
+          p: 1,
+          mb: 2,
+          alignContent: "center",
+          minWidth:"96%"
+        }}
+      >
         {/* <Toolbar> */}
         <Typography variant="h5" margin={2}>
           User Management
         </Typography>
-        <Stack direction="row" alignItems={"center"} spacing={2}>
+        <Stack
+          direction="row"
+          alignItems={"center"}
+          spacing={1}
+          maxWidth={"100%"}
+        >
           {/* //check if 'create' attribute is true in currentPermissions */}
           {currentPermissions?.create && (
             <Button variant="outlined" color="primary" onClick={handleAddUser}>
@@ -344,7 +364,11 @@ const UserTable = ({
         {/* </Toolbar> */}
       </Paper>
       <TableContainer component={Paper}>
-        <Table>
+        <Table
+          sx={{
+            overflowX:"scroll"
+          }}
+        >
           <TableHead>
             <TableRow
               sx={{

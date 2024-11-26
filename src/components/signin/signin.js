@@ -7,8 +7,8 @@ import Stack from "@mui/material/Stack";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import PasswordIcon from "@mui/icons-material/Password";
-import { useSnackbar } from "./snackbar";
-import API from "../constants";
+import { useSnackbar } from "../snackbar";
+import API from "../../constants";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
