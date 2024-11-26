@@ -17,17 +17,19 @@ import SecurityIcon from "@mui/icons-material/Security";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
-import Home from "./home";
-import UserManagement from "./usermanagement";
-import RoleManagement from "./rolemanagement";
-import UserRequests from "./requestmanagement";
+import Home from "./pages/home";
+import UserManagement from "./pages/usermanagement";
+import RoleManagement from "./pages/rolemanagement";
+import UserRequests from "./pages/requestmanagement";
 import API from "../../constants";
+import { useSnackbar } from "../snackbar";
 
 const AppLayout = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
   const [selectedComponent, setSelectedComponent] = useState("Home");
   const [role, setRole] = useState("");
+  const showSnackbar = useSnackbar();
 
   const handleLogout = () => {
     // Perform logout logic here
@@ -38,13 +40,16 @@ const AppLayout = () => {
 
   const getRoleById = async () => {
     try {
+      // Retrieve user from localStorage
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log(user);
-
-      if (Object.keys(user).length === 0) window.location.href = "/signin";
-      //send get request with roleId as query parameter
+      if (!user || !user.roleId) {
+        window.location.href = "/signin";
+        return;
+      }
+  
+      // API request to get role by ID
       const response = await fetch(
-        API.DATA_URL + API.DATA_ENDPOINTS.getRoleById + user.roleId,
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.getRoleById}${user.roleId}`,
         {
           method: "GET",
           headers: {
@@ -53,16 +58,34 @@ const AppLayout = () => {
           },
         }
       );
-      if (response.ok) {
-        const role = await response.json();
-        return role;
-      } else {
-        throw new Error("Failed to fetch role");
+  
+      if (!response.ok) {
+        const error = await response.json();
+  
+        if (error.error === "jwt expired") {
+          // Handle token expiration
+          showSnackbar("Session expired. Please log in again.", 3000, "error");
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          setTimeout(() => {
+            window.location.href = "/signin";
+          }, 3000);
+          return;
+        }
+  
+        showSnackbar(error.message || "Failed to fetch role.", 3000, "error");
+        throw new Error(error.message || "Failed to fetch role.");
       }
+  
+      // Return role on success
+      const role = await response.json();
+      return role;
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching role:", error);
+      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
     }
   };
+  
 
   useEffect(() => {
     const fetchRole = async () => {

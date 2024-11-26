@@ -30,49 +30,52 @@ const Signin = () => {
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Validate email
     const emailValidationError = validateEmail();
-
     setEmailError(emailValidationError);
-
-    if (!emailValidationError) {
-      // Proceed with form submission (e.g., API call)
-      fetch(API.DATA_URL + API.DATA_ENDPOINTS.signin, {
+  
+    if (emailValidationError) return;
+  
+    try {
+      // Show loading indicator or disable the submit button here (optional)
+      const response = await fetch(API.DATA_URL + API.DATA_ENDPOINTS.signin, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      })
-        .then((response) => {
-          if (response.ok) {
-            response.json().then((data) => {
-              var user=data.user;
-              user.createdAt=formatDate(user.createdAt);
-              localStorage.setItem("user", JSON.stringify(user));
-              localStorage.setItem("token", data.token);
-              window.location.href = "/dashboard";
-            });
-          } else {
-            response.json().then((data) => {
-              showSnackbar(
-                data.message || "Something went wrong",
-                3000,
-                "error"
-              );
-            });
-          }
-        })
-        .catch((error) => {
-          showSnackbar("Something went wrong", 3000, "error");
-          console.error("Error:", error);
-        });
-
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Process successful login
+        const user = {
+          ...data.user,
+          createdAt: formatDate(data.user.createdAt), // Assuming formatDate is defined
+        };
+  
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", data.token);
+  
+        // Redirect to dashboard
+        window.location.href = "/dashboard";
+      } else {
+        // Handle errors from the server
+        showSnackbar(data.message || "Something went wrong", 3000, "error");
+      }
+    } catch (error) {
+      // Handle network or unexpected errors
+      console.error("Error during sign-in:", error);
+      showSnackbar("Something went wrong. Please try again later.", 3000, "error");
+    } finally {
+      // Hide loading indicator or enable the submit button here (if used)
       console.log("Form submitted", { email, password });
     }
-  };
+  };  
 
   return (
     <Container

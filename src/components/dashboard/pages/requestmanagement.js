@@ -16,8 +16,8 @@ import {
 import LoopIcon from "@mui/icons-material/Loop";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
-import { useSnackbar } from "../snackbar";
-import API from "../../constants";
+import { useSnackbar } from "../../snackbar";
+import API from "../../../constants";
 
 const UserRequests = () => {
   const showSnackbar = useSnackbar();
@@ -32,25 +32,46 @@ const UserRequests = () => {
   });
 
   const getUserRequests = async () => {
-    const response = await fetch(
-      `${API.DATA_URL}${API.DATA_ENDPOINTS.getAllRequests}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": localStorage.getItem("token"),
-        },
+    try {
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.getAllRequests}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        if (data.error === "jwt expired") {
+          // Handle session expiration
+          showSnackbar("Session expired. Please log in again.", 3000, "error");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setTimeout(() => {
+            window.location.href = "/signin";
+          }, 3000);
+          return;
+        }
+  
+        // Show error message for other cases
+        showSnackbar(data.message || "Failed to fetch requests.", 3000, "error");
+        console.error(data.message || "Error fetching requests.");
+        return;
       }
-    );
-    const data = await response.json();
-    // setRequests(data);
-    if (response.status !== 200) {
-      showSnackbar(data.message, 3000, "error");
-      console.log(data.message);
-      return;
+  
+      // Set requests in state
+      setRequests(data.requests || []);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
     }
-    setRequests(data.requests);
   };
+  
 
   useEffect(() => {
     getUserRequests();
@@ -95,8 +116,7 @@ const UserRequests = () => {
           showSnackbar(data.message, 3000, "success");
           getUserRequests();
         } else {
-          showSnackbar("Something went wrong", 3000, "error");
-          return;
+          showSnackbar(data.message, 3000, "error");
         }
       })
       .catch((error) => {

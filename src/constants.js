@@ -15,7 +15,8 @@ const API={
         "addUser":"/api/users/add",
         "addRole":"/api/roles/define",
         "deleteRole":"/api/roles/",
-        "editRole":"/api/roles/"
+        "editRole":"/api/roles/",
+        "editPassword":"/api/users"
     }
 }
 

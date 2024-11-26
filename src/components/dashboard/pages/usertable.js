@@ -26,9 +26,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Stack from "@mui/material/Stack";
 import SearchIcon from "@mui/icons-material/Search";
-import API from "../../constants";
-import { useSnackbar } from "../snackbar";
-import { usePopper } from "../poppercontext";
+import API from "../../../constants";
+import { useSnackbar } from "../../snackbar";
+import { usePopper } from "../../poppercontext";
 import InfoIcon from "@mui/icons-material/Info";
 import LoopIcon from "@mui/icons-material/Loop";
 
@@ -242,6 +242,9 @@ const UserTable = ({
             value={value || ""}
             onChange={(e) => handleChange(columnName, e.target.value)}
             size="small"
+            disabled={
+              editingRowId == JSON.parse(localStorage?.getItem("user"))?.id
+            }
           >
             {options?.map((option) => (
               <MenuItem key={option} value={option}>
@@ -332,8 +335,10 @@ const UserTable = ({
               </MenuItem>
             ))}
           </Select>
-          <Tooltip title={`Default password is mail id trimmed before '@'. For example, If email is  'user123@example.com'  then default password is  'user123'. `} >
-            <InfoIcon  color="primary"/>
+          <Tooltip
+            title={`Default password is mail id trimmed before '@'. For example, If email is  'user123@example.com'  then default password is  'user123'. `}
+          >
+            <InfoIcon color="primary" />
           </Tooltip>
         </Stack>
         {/* </Toolbar> */}
@@ -396,61 +401,75 @@ const UserTable = ({
                 </TableCell>
               </TableRow>
             )}
-            {filteredUsers.map((user) => (
-              <TableRow
-                key={user.id}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.05)",
-                  },
-                }}
-              >
-                {columns.map(({ columnName, type, options }) => (
-                  <TableCell key={columnName}>
-                    {editingRowId === user.id &&
-                    editableFields.includes(columnName)
-                      ? renderEditableField(
-                          { columnName, type, options },
-                          editValues[columnName]
-                        )
-                      : columnName === "createdAt"
-                      ? formatDate(user[columnName]) // Format the createdAt field
-                      : typeof user[columnName] === "object"
-                      ? JSON.stringify(user[columnName])
-                      : user[columnName] || ""}
-                  </TableCell>
-                ))}
-                <TableCell
-                  sx={{
-                    minWidth: "80px",
-                  }}
-                >
-                  {editingRowId === user.id ? (
-                    <>
-                      <IconButton onClick={handleSaveEdit}>
-                        <SaveIcon />
-                      </IconButton>
-                      <IconButton onClick={handleCancelEdit}>
-                        <CancelIcon />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <>
-                      {currentPermissions?.edit && (
-                        <IconButton onClick={() => handleEditClick(user.id)}>
-                          <EditIcon />
-                        </IconButton>
+            {filteredUsers.map(
+              (user) =>
+                user?.email != "admin@example.com" && (
+                  <TableRow
+                    key={user.id}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.05)",
+                      },
+                    }}
+                  >
+                    {columns.map(({ columnName, type, options }) => (
+                      <TableCell key={columnName}>
+                        {editingRowId === user.id &&
+                        editableFields.includes(columnName)
+                          ? renderEditableField(
+                              { columnName, type, options },
+                              editValues[columnName]
+                            )
+                          : columnName === "createdAt"
+                          ? formatDate(user[columnName]) // Format the createdAt field
+                          : typeof user[columnName] === "object"
+                          ? JSON.stringify(user[columnName])
+                          : user[columnName] || ""}
+                      </TableCell>
+                    ))}
+                    <TableCell
+                      sx={{
+                        minWidth: "80px",
+                      }}
+                    >
+                      {editingRowId === user.id ? (
+                        <>
+                          <IconButton onClick={handleSaveEdit}>
+                            <SaveIcon />
+                          </IconButton>
+                          <IconButton onClick={handleCancelEdit}>
+                            <CancelIcon />
+                          </IconButton>
+                        </>
+                      ) : (
+                        <>
+                          {currentPermissions?.edit && (
+                            <IconButton
+                              onClick={() => handleEditClick(user.id)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                          {currentPermissions?.delete && (
+                            <IconButton
+                              onClick={() => handleDeleteClick(user.id)}
+                              disabled={
+                                localStorage.getItem("user") &&
+                                JSON.parse(localStorage.getItem("user"))?.id ==
+                                  user?.id
+                                  ? true
+                                  : false
+                              }
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
+                        </>
                       )}
-                      {currentPermissions?.delete && (
-                        <IconButton onClick={() => handleDeleteClick(user.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      )}
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+                    </TableCell>
+                  </TableRow>
+                )
+            )}
           </TableBody>
         </Table>
       </TableContainer>

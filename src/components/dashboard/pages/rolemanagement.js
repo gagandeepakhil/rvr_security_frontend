@@ -23,8 +23,8 @@ import {
   Add as AddIcon,
 } from "@mui/icons-material";
 import LoopIcon from "@mui/icons-material/Loop";
-import API from "../../constants";
-import { useSnackbar } from "../snackbar";
+import API from "../../../constants";
+import { useSnackbar } from "../../snackbar";
 import AddModeratorIcon from "@mui/icons-material/AddModerator";
 
 const permissionList = [
@@ -83,44 +83,61 @@ const RolePermissionManagement = () => {
   };
 
   // Handle saving changes
-  const handleSave = () => {
-    if(!editedRole?.roleName){
-        showSnackbar("Role name cannot be empty",3000, "error");
-        return;
+  const handleSave = async () => {
+    // Validate role name
+    if (!editedRole?.roleName) {
+      showSnackbar("Role name cannot be empty", 3000, "error");
+      return;
     }
-    var body={
-        roleName: editedRole?.roleName,
-        permissions: editedRole?.permissions
-    }
-    fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.editRole}${editingRoleId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "x-auth-token": localStorage.getItem("token"),
-      },
-      body: JSON.stringify(body),
-    })
-      .then((response) => {
-        if(response.status!=200){
-            showSnackbar("Failed to update role",3000, "error");
-            return;
+  
+    // Prepare the request body
+    const body = {
+      roleName: editedRole?.roleName,
+      permissions: editedRole?.permissions || [], // Fallback to empty array if undefined
+    };
+  
+    try {
+      // API call to update role
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.editRole}${editingRoleId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+          body: JSON.stringify(body),
         }
-        return response.json();
-      })
-      .then((data) => {
-          setRoles(
-            roles.map((role) =>
-              role.roleId === editingRoleId ? editedRole : role
-            )
-          );
-          setEditingRoleId(null);
-          setEditedRole(null);
-          showSnackbar(data?.message,3000, "success");
-      })
-      .catch((error) => {
-        showSnackbar("Failed to update role",3000, "error");
-      });
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        showSnackbar(data?.message || "Failed to update role", 3000, "error");
+        return;
+      }
+  
+      // Update roles state
+      setRoles(
+        roles.map((role) =>
+          role.roleId === editingRoleId
+            ? { ...role, roleName: editedRole.roleName, permissions: editedRole.permissions }
+            : role
+        )
+      );
+  
+      // Reset editing state
+      setEditingRoleId(null);
+      setEditedRole(null);
+  
+      // Show success message
+      showSnackbar(data?.message || "Role updated successfully", 3000, "success");
+    } catch (error) {
+      console.error("Error updating role:", error);
+      showSnackbar("Failed to update role. Please try again.", 3000, "error");
+    }
   };
+  
 
   // Handle canceling edit
   const handleCancel = () => {
@@ -145,56 +162,105 @@ const RolePermissionManagement = () => {
   };
 
   // Add a new role
-  const handleAddRole = () => {
-    if (newRoleName.trim()) {
-      var body = {
-        roleName: newRoleName,
-        permissions: {},
-      };
-      fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.addRole}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": localStorage.getItem("token"),
-        },
-        body: JSON.stringify(body),
-      }).then(async (response) => {
-        if (response.status != 201) {
-          console.log(response);
-          showSnackbar("Something went wrong", 3000, "error");
-        } else {
-          const data = await response.json();
-          console.log(data);
-
-          var roleData = {};
-          roleData.roleId = data?.role?._id;
-          roleData.roleName = data?.role?.roleName;
-          roleData.permissions = data?.role?.permissions;
-          setRoles([...roles, roleData]);
-          setNewRoleName("");
-          showSnackbar("Role added successfully", 3000, "success");
+  const handleAddRole = async () => {
+    // Validate input
+    if (!newRoleName.trim()) {
+      showSnackbar("Role name cannot be empty", 3000, "error");
+      return;
+    }
+  
+    // Prepare request body
+    const body = {
+      roleName: newRoleName.trim(),
+      permissions: [], // Default to an empty array
+    };
+  
+    try {
+      // API request to add a new role
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.addRole}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+          body: JSON.stringify(body),
         }
-      });
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        showSnackbar(data?.message || "Failed to add role", 3000, "error");
+        console.error("Error adding role:", data);
+        return;
+      }
+  
+      // Update roles state with the new role
+      const newRole = {
+        roleId: data?.role?._id,
+        roleName: data?.role?.roleName,
+        permissions: data?.role?.permissions || [],
+      };
+      setRoles([...roles, newRole]);
+  
+      // Reset form input
+      setNewRoleName("");
+  
+      // Success message
+      showSnackbar(data?.message || "Role added successfully", 3000, "success");
+    } catch (error) {
+      console.error("Unexpected error adding role:", error);
+      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
     }
   };
+  
 
   //Delete role
-  const handleDelete = (role) => {
-    fetch(`${API.DATA_URL}${API.DATA_ENDPOINTS.deleteRole}${role?.roleId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "x-auth-token": localStorage.getItem("token"),
-      },
-    }).then((response) => {
-      if (response.status != 200) {
-        showSnackbar("Something went wrong", 3000, "error");
-      } else {
-        setRoles(roles.filter((delRole) => delRole.roleId !== role?.roleId));
-        showSnackbar("Role deleted successfully", 3000, "success");
+  const handleDelete = async (role) => {
+    // Validate roleId
+    if (!role?.roleId) {
+      showSnackbar("Invalid role. Unable to delete.", 3000, "error");
+      return;
+    }
+  
+    try {
+      // Optimistically remove role from the state
+      const updatedRoles = roles.filter((delRole) => delRole.roleId !== role.roleId);
+      setRoles(updatedRoles);
+  
+      // API request to delete role
+      const response = await fetch(
+        `${API.DATA_URL}${API.DATA_ENDPOINTS.deleteRole}${role.roleId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        // Revert roles state on failure
+        setRoles(roles);
+        const data = await response.json();
+        showSnackbar(data?.message || "Failed to delete role", 3000, "error");
+        console.error("Error deleting role:", data);
+        return;
       }
-    });
+  
+      // Success message
+      showSnackbar("Role deleted successfully", 3000, "success");
+    } catch (error) {
+      // Revert roles state on error
+      setRoles(roles);
+      console.error("Unexpected error deleting role:", error);
+      showSnackbar("An unexpected error occurred. Please try again.", 3000, "error");
+    }
   };
+  
   // Get all roles
   const getAllRoles = async () => {
     try {

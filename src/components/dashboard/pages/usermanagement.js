@@ -1,9 +1,9 @@
 import React from "react";
-import API from "../../constants";
+import API from "../../../constants";
 import { Typography } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import UserTable from "./usertable";
-import { useSnackbar } from "../snackbar";
+import { useSnackbar } from "../../snackbar";
 
 const UserManagement = () => {
   const [usersData, setUsersData] = React.useState([]);
