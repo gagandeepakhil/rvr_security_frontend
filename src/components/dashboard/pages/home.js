@@ -68,10 +68,12 @@ function Home({ role, editable }) {
 
   useEffect(() => {
     // Fetch user details from local storage
+    showSnackbar("Loading user details...", 3000, "info");
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
       setUserDetails(user);
       setName(user.name);
+      showSnackbar("User details loaded", 3000, "success");
     }
   }, []);
 
