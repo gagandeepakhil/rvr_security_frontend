@@ -181,7 +181,8 @@ function Home({ role, editable }) {
                       <Typography variant="body2" color="textSecondary">
                         {userDetails.email}
                       </Typography>
-                      <Tooltip title="Change Password">
+                      {userDetails?.mail != "admin@example.com" &&(
+                        <Tooltip title="Change Password">
                         <IconButton
                           onClick={handleOpenChangePassword}
                           size="small"
@@ -189,6 +190,7 @@ function Home({ role, editable }) {
                           <PasswordIcon />
                         </IconButton>
                       </Tooltip>
+                      ) }
                     </Stack>
                   </Box>
                 </Box>
